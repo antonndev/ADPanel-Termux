@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>ADPanel - {{ bot }}</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <link id="favicon" rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/antonndev/ADCDn/adpanel-dark.webp" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- WebSocket (replaces Socket.IO) -->
+
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/ace.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/theme-one_dark.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/mode-javascript.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/mode-json.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/mode-yaml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/mode-python.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/mode-sh.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/mode-ini.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/mode-html.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/mode-css.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/mode-java.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict/mode-text.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/loader.min.js"></script>
+
+    <style>
+      .entry-actions { position: relative; }
+      .more-btn {
+        position: relative;
+        background: transparent;
+        border: none;
+        color: rgba(255,255,255,0.4);
+        cursor: pointer;
+        font-size: 16px;
+        padding: 6px;
+        border-radius: 8px;
+        align-self: flex-end;
+        transition: all 0.15s ease;
+      }
+      .more-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+
+      .more-menu {
+        position: absolute;
+        left: -150px;
+        top: 28px;
+        background: rgba(18,22,30,0.85);
+        backdrop-filter: blur(30px) saturate(160%);
+        -webkit-backdrop-filter: blur(30px) saturate(160%);
+        border: 0.5px solid rgba(255,255,255,0.1);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        border-radius: 12px;
+        overflow: hidden;
+        z-index: 9999;
+        min-width: 160px;
+        display: none;
+        pointer-events: auto;
+      }
+      .more-menu.show { display: block; }
+      .more-menu button {
+        display: block;
+        width: 100%;
+        padding: 10px 12px;
+        background: transparent;
+        border: 0;
+        color: #c8d1da;
+        text-align: left;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .more-menu button:hover { background: rgba(255,255,255,0.02); color:#fff; }
+
+      .progress-wheel {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #31343a;
+        display: inline-block;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.06);
+        box-shadow: 0 1px 0 rgba(0,0,0,0.3) inset;
+        margin-left: 10px;
+        vertical-align: middle;
+        cursor: pointer;
+        transition: transform .12s ease, box-shadow .12s ease;
+      }
+      .progress-wheel:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.5); }
+      .progress-wheel .fill {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        background: #ffffff;
+        height: 0%;
+        border-radius: 50%;
+        transition: height 120ms linear;
+        pointer-events: none;
+      }
+      .progress-wheel.hidden { display: none; }
+
+      .progress-popup {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, rgba(18,20,24,0.92), rgba(28,30,36,0.88));
+        color: #fff;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 16px 18px;
+        z-index: 100000;
+        min-width: 300px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        display: none;
+        backdrop-filter: blur(6px) saturate(120%);
+      }
+      .progress-popup .row { display:flex;align-items:center;justify-content:space-between;gap:12px; }
+      .progress-popup .percent { font-weight:700; font-size:20px; color:#ffffff; }
+      .progress-popup .close-btn { background:transparent;border: none;color:#9aa3ad;font-size:18px;cursor:pointer;padding:6px;border-radius:6px; }
+      .progress-popup .progress-bar { margin-top:12px;width:100%;height:12px;background: rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;position: relative; }
+      .progress-popup .progress-bar .bar { height:100%; width:0%; background: linear-gradient(90deg, rgba(255,255,255,1), rgba(220,220,220,0.85)); transition: width 120ms linear; box-shadow: 0 2px 8px rgba(0,0,0,0.45) inset; }
+      .progress-popup .meta { margin-top:10px;font-size:12px;color:#9aa3ad;display:flex;align-items:center;justify-content:space-between;gap:8px; }
+
+      /* drop overlay inside files modal - Enterprise style */
+      #dropOverlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 99990; pointer-events: none; background: rgba(12,14,20,0.6); backdrop-filter: blur(8px); }
+      #dropOverlay.visible { display: flex; pointer-events: auto; }
+      #dropOverlay .inner { background: rgba(255,255,255,0.03); border: 2px dashed rgba(96,165,250,0.35); padding: 36px 42px; border-radius: 16px; text-align: center; color: #e6eef8; backdrop-filter: blur(3px); box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+      #dropOverlay .inner h3 { margin: 0 0 6px 0; font-size: 18px; font-weight: 700; }
+      #dropOverlay .inner p { margin: 0; font-size: 13px; color: #b8c3cf; }
+
+      *::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+
+      *::-webkit-scrollbar-track {
+        background: transparent;
+        margin: 6px 0;
+        border-radius: 999px;
+      }
+
+      *::-webkit-scrollbar-thumb {
+        background-color: #212121;
+        border-radius: 999px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      }
+
+      *::-webkit-scrollbar-thumb:hover {
+        background-color: #2a2a2a;
+      }
+
+      *::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+
+      #console, #entries, .modal-body, .modal-left, .modal-right, textarea, .modal, .code-shell {
+        scrollbar-width: thin;
+        scrollbar-color: #212121 transparent;
+      }
+
+      #console {
+        max-height: 320px;
+        overflow: auto;
+        padding: 12px;
+        border-radius: 8px;
+        background: #0b0c0e;
+      }
+
+      #entries {
+        max-height: none;
+        overflow: visible;
+        padding-right: 8px;
+      }
+
+      .modal-body {
+        max-height: 520px;
+        overflow: auto;
+      }
+
+      .modal-left, .modal-right {
+        max-height: 520px;
+        overflow: auto;
+      }
+
+      textarea {
+        max-height: 520px;
+        overflow: auto;
+      }
+
+      /* Dock - Enterprise glass style */
+      .dock-wrap { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 99999; width: max-content; max-width: calc(100vw - 36px); display: flex; justify-content: center; transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+      .dock-wrap.dock-hidden { opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(20px) scale(0.96); }
+      .dock { display: inline-flex; flex-wrap: wrap; gap: 12px; padding: 10px 18px; border-radius: 16px; width: auto; max-width: 100%; border: none; box-shadow: 0 8px 26px rgba(0,0,0,0.45); backdrop-filter: blur(14px) saturate(150%); background: transparent; align-items: center; }
+      .dock-item { display:flex; flex-direction:column; align-items:center; gap:6px; padding:8px 10px; cursor:pointer; user-select:none; color:#d1d8de; text-decoration:none; }
+      .dock-item .icon { width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:12px; position:relative; overflow:hidden; transition: all 0.3s cubic-bezier(0.16,1,0.3,1); background: linear-gradient(145deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.14) 100%); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); }
+      .dock-item .icon > * { filter: drop-shadow(0 0 1px rgba(255,255,255,0.3)); }
+      .dock-item .icon::before { content:''; position:absolute; inset:0; border-radius:12px; padding:1px; background: linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.18) 100%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events:none; }
+      .dock-item .icon::after { content:''; position:absolute; top:0; left:10%; right:10%; height:40%; background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 100%); border-radius:12px 12px 50% 50%; pointer-events:none; }
+      .dock-item .icon i { font-size:18px; color:rgba(255,255,255,0.9); position:relative; z-index:1; transition: all 0.3s ease; }
+      .dock-item .label { font-size:11px; color:#c3cad2; margin-top:4px; }
+      .dock-item:hover { transform: translateY(-3px); transition: transform .12s; }
+      .dock-item:hover .icon { background: linear-gradient(145deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.14) 50%, rgba(255,255,255,0.18) 100%); transform: scale(1.06); }
+      .dock-item:hover .icon i { color: rgba(255,255,255,1); }
+      .dock-item:active .icon { transform: scale(0.95); }
+
+      /* Apple-style modal animations */
+      @keyframes modalOpen { from { opacity:0; transform: scale(0.92) translateY(18px); } to { opacity:1; transform: scale(1) translateY(0); } }
+      @keyframes modalClose { from { opacity:1; transform: scale(1) translateY(0); } to { opacity:0; transform: scale(0.92) translateY(18px); } }
+      @keyframes overlayOpen { from { opacity:0; } to { opacity:1; } }
+      @keyframes overlayClose { from { opacity:1; } to { opacity:0; } }
+      .modal-overlay.show { animation: overlayOpen 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+      .modal-overlay.closing { display:flex !important; animation: overlayClose 0.25s cubic-bezier(0.22,1,0.36,1) forwards; }
+      .modal-overlay.show .modal { animation: modalOpen 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+      .modal-overlay.closing .modal { animation: modalClose 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+    </style>
+  </head>
+
+  <body>
+    <div class="app-wrap">
+      <div class="topbar">
+        <div class="brands">
+          <div class="logo" title="Settings"><a href="/"><img src="https://i.imgur.com/k5agjYf.png" alt="adpanel-logo" width="7%" height="7%"></a></div>
+          <div class="logo" title="Setups"><a href="/" style="position: absolute; font-family: sans-serif; font-size: 30px; font-weight: bold; margin-top: -35px; margin-left: 60px; text-decoration: none; color: white;">Panel</a></div>
+        </div>
+
+        <div class="top-actions">
+          <button class="icon-btn" id="filesBtn" onclick="openFilesModal()"><i class="fa-solid fa-folder-open"></i> Files</button>
+          <button class="icon-btn" id="taskBtn" onclick="openTaskModal()"><i class="fa-solid fa-list-check"></i> Task</button>
+          <button class="icon-btn" onclick="focusConsole()"><i class="fa-solid fa-terminal"></i> Terminal</button>
+          <button class="icon-btn" onclick="run()" title="Run selected"><i class="fa-solid fa-play"></i> Run</button>
+          <button class="icon-btn" onclick="stop()" title="Stop process"><i class="fa-solid fa-stop"></i> Stop</button>
+          <button class="icon-btn" onclick="openPkgMenu(this)" title="Package Manager"><i class="fa-solid fa-cube"></i> Packages</button>
+        </div>
+      </div>
+
+      <div class="main-stage" style="margin-top:2px">
+        <div class="console-panel" role="main" aria-label="Console panel">
+          <div class="console-window">
+            <div class="window-header">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="dot" style="background:#ff5f56; cursor: pointer;" onclick="stop()"></span>
+                <span class="dot" style="background:#ffbd2e; cursor: pointer;" onclick="stop()"></span>
+                <span class="dot" style="background:#27c93f; cursor: pointer;" onclick="run()"></span>
+                <div style="margin-left:6px;color:var(--muted);font-size:13px">Console — <span style="color:#fff;font-weight:700">{{ bot }}</span></div>
+              </div>
+              <div class="window-controls">
+                <div style="color:var(--muted);font-size:13px">Status: <span id="statusLabel">idle</span></div>
+              </div>
+            </div>
+
+            <div class="controls">
+              <select id="scriptSelect" title="Choose script"></select>
+              <button class="run-button" onclick="run()" title="Run"><i class="fa-solid fa-play" style="transform: rotate(90deg)"></i></button>
+              <button class="stop-button" onclick="stop()" title="Stop"><i class="fa-solid fa-stop"></i></button>
+              <div style="flex:1"></div>
+            </div>
+
+            <pre id="console" aria-live="polite"></pre>
+
+            <div class="cmd-row">
+              <input id="cmdInput" type="text" placeholder="Type a command (npm, pip, python, node supported) and press Enter" />
+              <button class="icon-btn" onclick="sendCommand()" title="Send command">Send</button>
+              <button class="icon-btn" onclick="clearConsole()" title="Clear">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="filesModal" class="modal-overlay" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="filesModalTitle" style="position:relative;">
+        <div class="ptero-flash-bar" id="filesFlashBar">
+          <div class="ptero-flash-fill" id="filesFlashFill"></div>
+        </div>
+        <div class="modal-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div>
+              <div class="modal-title" id="filesModalTitle">Managing <span style="color:#fff;font-weight:700">{{ bot }}</span></div>
+              <div style="color:var(--muted);font-size:13px">Explore and manage files</div>
+            </div>
+            <div id="progressWheel" class="progress-wheel hidden" title="Operation in progress">
+              <div class="fill" id="progressFill" style="height:0%"></div>
+            </div>
+          </div>
+          <div><button class="modal-close" id="filesModalClose" title="Close (Esc)"><i class="fa-solid fa-xmark"></i></button></div>
+        </div>
+
+        <div id="dropOverlay" aria-hidden="true">
+          <div class="inner">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size:36px;color:rgba(96,165,250,0.7);margin-bottom:14px;display:block;"></i>
+            <h3 id="dropTitle">Drop to upload</h3>
+            <p id="dropSubtitle">Release to upload to current folder</p>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-left">
+            <div class="file-toolbar">
+              <div class="file-toolbar-left">
+                <div class="file-toolbar-icon"><i class="fa-solid fa-folder-tree"></i></div>
+                <div class="file-toolbar-meta">
+                  <div class="file-toolbar-title">Working directory</div>
+                  <div id="breadcrumbs"></div>
+                </div>
+              </div>
+              <div class="file-toolbar-actions">
+                <div class="file-action-row">
+                  <label class="ghost-btn" id="uploadLabel" for="fileUploadModal" style="cursor:pointer"><i class="fa-solid fa-upload"></i> Upload</label>
+                  <input id="fileUploadModal" type="file" />
+                  <button class="ghost-btn" id="newBtn" onclick="createNew()" title="New file/folder"><i class="fa-solid fa-file-circle-plus"></i> New</button>
+                  <button class="bulk-delete" id="bulkDeleteBtn" title="Delete selected">
+                    <i class="fa-solid fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
+                  <button class="bulk-archive" id="bulkArchiveBtn" title="Archive selected">
+                    <i class="fa-solid fa-file-zipper"></i>
+                    <span>Archive</span>
+                  </button>
+                </div>
+                <label class="select-all-control" for="selectAllToggle">
+                  <input type="checkbox" id="selectAllToggle" />
+                  <span class="select-all-checkbox"><i class="fa-solid fa-check"></i></span>
+                  <span class="select-all-label">Select</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="file-glance">
+              <div class="glance-card">
+                <div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                <div>
+                  <div class="glance-label">Uploads</div>
+                  <div class="glance-desc">Drag & drop anywhere</div>
+                </div>
+              </div>
+            </div>
+
+            <ul id="entries" role="list"></ul>
+          </div>
+
+          <div class="modal-right"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="taskModal" class="modal-overlay task-modal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
+        <div class="modal-header">
+          <div>
+            <div class="modal-title" id="taskModalTitle">Task Manager — Startup</div>
+            <div style="color:var(--muted);font-size:13px">Choose a startup file to use when you press Run</div>
+          </div>
+          <div>
+            <button class="modal-close" id="taskModalClose" title="Close (Esc)"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+
+        <div style="padding:6px 0 12px 0">
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="taskStartupSelect" style="flex:1;padding:10px;border-radius:8px;background:#0e1116;border:1px solid rgba(255,255,255,0.02);color:#fff"></select>
+            <button class="icon-btn" id="saveStartupBtn">Save</button>
+          </div>
+          <div style="color:var(--muted);font-size:13px;margin-top:8px">Saved startup choice is persisted in browser (localStorage).</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="editorModal" class="modal-overlay editor-modal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editorModalTitle" style="position:relative;">
+        <div class="ptero-flash-bar" id="editorFlashBar">
+          <div class="ptero-flash-fill" id="editorFlashFill"></div>
+        </div>
+        <div class="editor-header">
+          <div>
+            <div class="editor-title" id="editorModalTitle">ADPanel Editor</div>
+            <div style="color:var(--muted);font-size:13px" id="editorPath"></div>
+          </div>
+          <div class="editor-actions">
+            <button class="modal-close" id="editorModalClose" title="Close (Esc)"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+
+        <div id="bigEditor">
+          <div id="codeShell" class="code-shell" style="display:none">
+            <div id="monacoContainer" style="width:100%;height:100%;"></div>
+            <div id="aceContainer" style="width:100%;height:100%;display:none;"></div>
+          </div>
+
+          <textarea id="textArea" style="display:none" spellcheck="false"></textarea>
+
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="icon-btn" id="editorDiscard">Discard</button>
+            <button class="icon-btn" id="editorSave">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dock-wrap" role="navigation" aria-label="taskbar">
+      <div class="dock">
+        <div class="dock-item" onclick="window.location='/'" title="Dashboard">
+          <div class="icon"><i class="fa-solid fa-house"></i></div>
+          <div class="label">Home</div>
+        </div>
+
+        <div class="dock-item" onclick="openFilesModal()" title="Files">
+          <div class="icon"><i class="fa-solid fa-folder-open"></i></div>
+          <div class="label">Files</div>
+        </div>
+        <div class="dock-item" onclick="openTaskModal()" title="Task Manager">
+          <div class="icon"><i class="fa-solid fa-list-check"></i></div>
+          <div class="label">Task</div>
+        </div>
+        <div class="dock-item" onclick="focusConsole()" title="Terminal">
+          <div class="icon"><i class="fa-solid fa-terminal"></i></div>
+          <div class="label">Terminal</div>
+        </div>
+        <div class="dock-item" onclick="run()" title="Run">
+          <div class="icon"><i class="fa-solid fa-play"></i></div>
+          <div class="label">Run</div>
+        </div>
+        <div class="dock-item" onclick="stop()" title="Stop">
+          <div class="icon"><i class="fa-solid fa-stop"></i></div>
+          <div class="label">Stop</div>
+        </div>
+        <div class="dock-item" onclick="createNew()" title="Create new">
+          <div class="icon"><i class="fa-solid fa-file-circle-plus"></i></div>
+          <div class="label">New</div>
+        </div>
+        <div class="dock-item" onclick="openPkgMenu(this)" title="Package Manager">
+          <div class="icon"><i class="fa-solid fa-cube"></i></div>
+          <div class="label">Packages</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Package Manager Menu -->
+    <div id="pkgMenu" class="more-menu" style="position:fixed;z-index:99999;min-width:220px;">
+      {% if runtime == "nodejs" %}
+      <button onclick="pkgCmd('npm install')"><i class="fa-solid fa-download" style="width:18px;text-align:center;margin-right:6px"></i>npm install</button>
+      <button onclick="pkgCmd('npm update')"><i class="fa-solid fa-arrows-rotate" style="width:18px;text-align:center;margin-right:6px"></i>npm update</button>
+      <button onclick="pkgCmd('npm outdated')"><i class="fa-solid fa-clock-rotate-left" style="width:18px;text-align:center;margin-right:6px"></i>npm outdated</button>
+      <button onclick="pkgCmd('npm list')"><i class="fa-solid fa-list" style="width:18px;text-align:center;margin-right:6px"></i>npm list</button>
+      <button onclick="pkgCmd('npm audit')"><i class="fa-solid fa-shield-halved" style="width:18px;text-align:center;margin-right:6px"></i>npm audit</button>
+      <button onclick="pkgCmd('npm prune')"><i class="fa-solid fa-scissors" style="width:18px;text-align:center;margin-right:6px"></i>npm prune</button>
+      <button onclick="pkgPrompt('npm install')"><i class="fa-solid fa-plus" style="width:18px;text-align:center;margin-right:6px"></i>npm install &lt;pkg&gt;</button>
+      <button onclick="pkgPrompt('npm uninstall')"><i class="fa-solid fa-trash" style="width:18px;text-align:center;margin-right:6px"></i>npm uninstall &lt;pkg&gt;</button>
+      <button onclick="pkgPrompt('npm run')"><i class="fa-solid fa-terminal" style="width:18px;text-align:center;margin-right:6px"></i>npm run &lt;script&gt;</button>
+      <button onclick="pkgPrompt('npx')"><i class="fa-solid fa-bolt" style="width:18px;text-align:center;margin-right:6px"></i>npx &lt;command&gt;</button>
+      <button onclick="pkgPrompt('node')"><i class="fa-brands fa-node-js" style="width:18px;text-align:center;margin-right:6px"></i>node &lt;file&gt;</button>
+      {% elif runtime == "python" %}
+      <button onclick="pkgCmd('pip install -r requirements.txt')"><i class="fa-solid fa-download" style="width:18px;text-align:center;margin-right:6px"></i>pip install -r requirements.txt</button>
+      <button onclick="pkgCmd('pip list')"><i class="fa-solid fa-list" style="width:18px;text-align:center;margin-right:6px"></i>pip list</button>
+      <button onclick="pkgCmd('pip freeze')"><i class="fa-solid fa-snowflake" style="width:18px;text-align:center;margin-right:6px"></i>pip freeze</button>
+      <button onclick="pkgCmd('pip check')"><i class="fa-solid fa-circle-check" style="width:18px;text-align:center;margin-right:6px"></i>pip check</button>
+      <button onclick="pkgPrompt('pip install')"><i class="fa-solid fa-plus" style="width:18px;text-align:center;margin-right:6px"></i>pip install &lt;pkg&gt;</button>
+      <button onclick="pkgPrompt('pip uninstall')"><i class="fa-solid fa-trash" style="width:18px;text-align:center;margin-right:6px"></i>pip uninstall &lt;pkg&gt;</button>
+      <button onclick="pkgPrompt('pip show')"><i class="fa-solid fa-info-circle" style="width:18px;text-align:center;margin-right:6px"></i>pip show &lt;pkg&gt;</button>
+      <button onclick="pkgPrompt('python')"><i class="fa-brands fa-python" style="width:18px;text-align:center;margin-right:6px"></i>python &lt;file&gt;</button>
+      <button onclick="pkgPrompt('python -m')"><i class="fa-solid fa-terminal" style="width:18px;text-align:center;margin-right:6px"></i>python -m &lt;module&gt;</button>
+      {% endif %}
+      <div style="border-top:1px solid rgba(255,255,255,0.06);margin:4px 0"></div>
+      <button onclick="pkgCustom()"><i class="fa-solid fa-keyboard" style="width:18px;text-align:center;margin-right:6px"></i>Custom command…</button>
+    </div>
+
+    <div id="progressPopup" class="progress-popup" role="dialog" aria-hidden="true">
+      <div class="row">
+        <div>
+          <div class="title">Current Operation</div>
+          <div class="percent" id="popupPercent">0%</div>
+        </div>
+        <div>
+          <button id="popupClose" class="close-btn" title="Close">✕</button>
+        </div>
+      </div>
+      <div class="progress-bar" aria-hidden="true">
+        <div class="bar" id="popupBar" style="width:0%"></div>
+      </div>
+      <div class="meta">
+        <div id="popupMsg">Processing...</div>
+        <div id="popupTime" style="font-size:12px;color:#88929b">—</div>
+      </div>
+    </div>
+
+    <script>
+      const bot = "{{ bot }}";
+      // WebSocket connection (replaces Socket.IO)
+      const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(wsProto + '//' + location.host + '/ws/' + encodeURIComponent(bot));
+      const socket = {
+        _handlers: {},
+        on(event, fn) {
+          if (!this._handlers[event]) this._handlers[event] = [];
+          this._handlers[event].push(fn);
+        },
+        emit(event, data) {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: event, ...data }));
+          }
+        },
+        _dispatch(event, data) {
+          (this._handlers[event] || []).forEach(fn => fn(data));
+        }
+      };
+      ws.onmessage = function(ev) {
+        try {
+          const msg = JSON.parse(ev.data);
+          if (msg.type) socket._dispatch(msg.type, msg.data !== undefined ? msg.data : msg);
+        } catch(e) {
+          // plain text output
+          socket._dispatch('output', ev.data);
+        }
+      };
+      ws.onclose = function() {
+        console.log('WebSocket closed, reconnecting in 2s...');
+        setTimeout(() => location.reload(), 2000);
+      };
+
+      const consoleEl = document.getElementById("console");
+      const scriptSelect = document.getElementById("scriptSelect");
+      const cmdInput = document.getElementById("cmdInput");
+      const entriesEl = document.getElementById("entries");
+      const breadcrumbs = document.getElementById("breadcrumbs");
+      const filesModal = document.getElementById("filesModal");
+      const filesModalClose = document.getElementById("filesModalClose");
+      const fileUploadModal = document.getElementById("fileUploadModal");
+      const taskModal = document.getElementById("taskModal");
+      const taskModalClose = document.getElementById("taskModalClose");
+      const taskStartupSelect = document.getElementById("taskStartupSelect");
+      const saveStartupBtn = document.getElementById("saveStartupBtn");
+      const statusLabel = document.getElementById("statusLabel");
+
+      const editorModal = document.getElementById("editorModal");
+      const editorModalClose = document.getElementById("editorModalClose");
+      const editorPath = document.getElementById("editorPath");
+      const codeShell = document.getElementById("codeShell");
+      const monacoContainer = document.getElementById("monacoContainer");
+      const aceContainer = document.getElementById("aceContainer");
+      const textArea = document.getElementById("textArea");
+      const editorSave = document.getElementById("editorSave");
+      const editorDiscard = document.getElementById("editorDiscard");
+      let editorOriginalContent = "";
+      let aceEditor = null;
+      let useAceFallback = null;
+      let monacoEditor = null;
+      let monacoLoaderPromise = null;
+
+      const progressWheel = document.getElementById("progressWheel");
+      const progressFill = document.getElementById("progressFill");
+      const progressPopup = document.getElementById("progressPopup");
+      const popupPercent = document.getElementById("popupPercent");
+      const popupBar = document.getElementById("popupBar");
+      const popupMsg = document.getElementById("popupMsg");
+      const popupTime = document.getElementById("popupTime");
+      const popupClose = document.getElementById("popupClose");
+
+      const dropOverlay = document.getElementById("dropOverlay");
+      const dropTitle = document.getElementById("dropTitle");
+      const dropSubtitle = document.getElementById("dropSubtitle");
+
+      const flashFill = document.getElementById("filesFlashFill");
+      const selectAllToggle = document.getElementById("selectAllToggle");
+      const bulkDeleteBtn = document.getElementById("bulkDeleteBtn");
+      const bulkArchiveBtn = document.getElementById("bulkArchiveBtn");
+
+      let selectedFiles = new Set();
+
+      function flashProgress(percent) {
+        if (!flashFill) return;
+        flashFill.style.width = percent + "%";
+        flashFill.classList.remove("complete");
+        if (percent >= 100) {
+          flashFill.classList.add("complete");
+          setTimeout(() => { flashFill.style.width = "0%"; flashFill.classList.remove("complete"); }, 700);
+        }
+      }
+
+      function updateBulkUI() {
+        const count = selectedFiles.size;
+        bulkDeleteBtn.classList.toggle("show", count > 0);
+        bulkArchiveBtn.classList.toggle("show", count > 0);
+      }
+
+      if (selectAllToggle) {
+        selectAllToggle.addEventListener("change", () => {
+          const checked = selectAllToggle.checked;
+          document.querySelectorAll("#entries .entry-select").forEach(cb => {
+            cb.checked = checked;
+            const name = cb.dataset.name;
+            if (checked) selectedFiles.add(name); else selectedFiles.delete(name);
+          });
+          updateBulkUI();
+        });
+      }
+
+      if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener("click", () => {
+          if (selectedFiles.size === 0) return;
+          if (!confirm(`Delete ${selectedFiles.size} selected item(s)?`)) return;
+          selectedFiles.forEach(name => {
+            socket.emit("deleteFile", { bot, path: currentPath ? currentPath + "/" + name : name, isDir: false });
+          });
+          selectedFiles.clear();
+          selectAllToggle.checked = false;
+          updateBulkUI();
+          setTimeout(() => loadExplorer(currentPath), 400);
+        });
+      }
+
+      if (bulkArchiveBtn) {
+        bulkArchiveBtn.addEventListener("click", async () => {
+          if (selectedFiles.size === 0) return;
+          const names = [...selectedFiles];
+          const archiveName = prompt("Archive name:", "archive.zip");
+          if (!archiveName) return;
+          try {
+            const resp = await fetch("/archive", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ bot, path: currentPath, files: names, archiveName })
+            });
+            if (!resp.ok) throw new Error(await resp.text());
+            selectedFiles.clear();
+            selectAllToggle.checked = false;
+            updateBulkUI();
+            loadExplorer(currentPath);
+          } catch (err) {
+            alert("Archive failed: " + err.message);
+          }
+        });
+      }
+
+      // WebSocket join is implicit via URL path
+
+      socket.on("output", (data) => {
+        consoleEl.textContent += data;
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+      });
+
+      socket.on("fileData", (d) => {
+        openEditorModal(d.path, d.content);
+      });
+
+      let currentPath = "";
+      async function loadExplorer(path = "") {
+        flashProgress(30);
+        selectedFiles.clear();
+        if (selectAllToggle) selectAllToggle.checked = false;
+        updateBulkUI();
+        try {
+          const r = await fetch(`/explore/${encodeURIComponent(bot)}?path=${encodeURIComponent(path)}`);
+          if (!r.ok) throw new Error("Failed to load");
+          const data = await r.json();
+          currentPath = data.path || "";
+          const parts = currentPath ? currentPath.split("/") : [];
+          let bc = `<a href="#" onclick="loadExplorer('');return false">Root</a>`;
+          parts.forEach((p, i) => {
+            const partial = parts.slice(0, i + 1).join("/");
+            bc += ` / <a href="#" onclick="loadExplorer('${partial.replace(/'/g, "\\'")}');return false">${p}</a>`;
+          });
+          breadcrumbs.innerHTML = bc;
+          entriesEl.innerHTML = "";
+          flashProgress(100);
+
+          data.entries.forEach((e, idx) => {
+            const li = document.createElement("li");
+            li.className = "entry";
+
+            const left = document.createElement("div");
+            left.className = "entry-left";
+
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.className = "entry-select";
+            cb.dataset.name = e.name;
+            cb.style.cssText = "width:16px;height:16px;accent-color:#60a5fa;cursor:pointer;flex-shrink:0";
+            cb.addEventListener("click", (ev) => {
+              ev.stopPropagation();
+              if (cb.checked) selectedFiles.add(e.name); else selectedFiles.delete(e.name);
+              updateBulkUI();
+            });
+
+            const icon = document.createElement("div");
+            icon.className = e.isDir ? "entry-icon folder" : "entry-icon";
+            icon.innerHTML = e.isDir ? '<i class="fa-solid fa-folder"></i>' : '<i class="fa-solid fa-file"></i>';
+
+            const nameWrap = document.createElement("div");
+            nameWrap.className = "entry-text-wrap";
+            const nm = document.createElement("div");
+            nm.className = "entry-name";
+            nm.textContent = e.name;
+            const meta = document.createElement("div");
+            meta.className = "entry-meta";
+            meta.textContent = e.isDir ? "Folder" : "File";
+
+            nameWrap.appendChild(nm);
+            nameWrap.appendChild(meta);
+            left.appendChild(cb);
+            left.appendChild(icon);
+            left.appendChild(nameWrap);
+
+            const right = document.createElement("div");
+            right.className = "entry-right";
+
+            const arrow = document.createElement("span");
+            arrow.className = "entry-arrow";
+            arrow.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+
+            const actions = document.createElement("div");
+            actions.className = "entry-actions";
+            const moreBtn = document.createElement("button");
+            moreBtn.className = "more-btn";
+            moreBtn.innerHTML = '<i class="fa-solid fa-ellipsis-vertical"></i>';
+            actions.appendChild(moreBtn);
+
+            const menu = document.createElement("div");
+            menu.className = "more-menu";
+            const renameBtn = document.createElement("button");
+            renameBtn.textContent = "Rename";
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Delete";
+            menu.appendChild(renameBtn);
+            menu.appendChild(deleteBtn);
+
+            const isArchive = !e.isDir && /\.(zip|tar|tgz|tar\.gz|tar\.bz2|bz2|rar|7z)$/i.test(e.name);
+            let unarchiveBtn = null;
+            if (isArchive) {
+              unarchiveBtn = document.createElement("button");
+              unarchiveBtn.textContent = "Unarchive";
+              menu.appendChild(unarchiveBtn);
+            }
+
+            actions.appendChild(menu);
+
+            renameBtn.addEventListener('click', async (ev) => {
+              ev.stopPropagation();
+              const newName = prompt(`Rename "${e.name}" to:`);
+              if (!newName || newName.trim() === "") return alert("Invalid name");
+              try {
+                const res = await fetch("/rename", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    bot,
+                    oldPath: currentPath ? currentPath + "/" + e.name : e.name,
+                    newName: newName.trim()
+                  })
+                });
+                if (!res.ok) throw new Error(await res.text().catch(()=>res.statusText));
+                alert('Renamed');
+                loadExplorer(currentPath);
+              } catch (err) {
+                alert('Rename failed: ' + (err.message || err));
+              } finally {
+                menu.classList.remove('show');
+              }
+            });
+
+            deleteBtn.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              if (!confirm(`Delete ${e.isDir ? "folder" : "file"} "${e.name}"?`)) { menu.classList.remove('show'); return; }
+              socket.emit("deleteFile", { bot, path: currentPath ? currentPath + "/" + e.name : e.name, isDir: e.isDir });
+              setTimeout(()=> loadExplorer(currentPath), 300);
+              menu.classList.remove('show');
+            });
+
+            if (unarchiveBtn) {
+              unarchiveBtn.addEventListener('click', async (ev) => {
+                ev.stopPropagation();
+                menu.classList.remove('show');
+                const targetRel = currentPath ? currentPath + "/" + e.name : e.name;
+                if (!confirm(`Unarchive "${e.name}" into current folder?`)) return;
+                showProgressWheel(6, "Unarchiving...");
+                try {
+                  const resp = await fetch("/extract", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ bot, path: targetRel })
+                  });
+                  const j = await resp.json();
+                  if (!resp.ok || !j.ok) throw new Error((j && j.error) ? j.error : (j && j.msg) ? j.msg : 'Extraction failed');
+                  setProgress(100, j.msg || 'Unarchive complete');
+                  await new Promise(r => setTimeout(r, 250));
+                  loadExplorer(currentPath);
+                  alert('Unarchive completed');
+                } catch (err) {
+                  alert('Unarchive failed: ' + (err.message || err));
+                } finally {
+                  hideProgressWheel();
+                }
+              });
+            }
+
+            li.addEventListener('click', () => {
+              if (e.isDir) {
+                loadExplorer(currentPath ? currentPath + "/" + e.name : e.name);
+              } else {
+                socket.emit("readFile", { bot, path: currentPath ? currentPath + "/" + e.name : e.name });
+              }
+            });
+
+            moreBtn.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              document.querySelectorAll('.more-menu.show').forEach(m=> { if (m !== menu) m.classList.remove('show'); });
+              menu.classList.toggle('show');
+            });
+
+            li.appendChild(left);
+            right.appendChild(arrow);
+            right.appendChild(actions);
+            li.appendChild(right);
+            entriesEl.appendChild(li);
+          });
+
+          const scripts = data.entries
+            .filter(e => !e.isDir && (e.name.endsWith(".js") || e.name.endsWith(".py") || e.name.endsWith(".html")))
+            .map(e => e.name);
+
+          scriptSelect.innerHTML = scripts.map(s => `<option value="${s}">${s}</option>`).join("");
+          const optionsHTML = `<option value="">(none)</option>` + scripts.map(s => `<option value="${s}">${s}</option>`).join("");
+          taskStartupSelect.innerHTML = optionsHTML;
+
+          const saved = localStorage.getItem(`startup-${bot}`);
+          if (saved) {
+            if ([...taskStartupSelect.options].some(o=>o.value===saved)) taskStartupSelect.value = saved;
+          }
+        } catch (err) {
+          console.error(err);
+          entriesEl.innerHTML = `<li style="color:var(--muted)">Failed to load</li>`;
+        }
+      }
+
+
+      let currentProgress = 0;
+      let simInterval = null;
+      let isActiveOperation = false;
+      let operationStart = null;
+
+      function showProgressWheel(initialPercent = 0, msg = "Processing...") {
+        isActiveOperation = true;
+        operationStart = Date.now();
+        progressWheel.classList.remove('hidden');
+        setProgress(initialPercent, msg);
+      }
+
+      function hideProgressWheel() {
+        isActiveOperation = false;
+        setTimeout(()=>{
+          progressWheel.classList.add('hidden');
+          setProgress(0);
+          closeProgressPopup();
+          operationStart = null;
+          popupTime.textContent = "—";
+        }, 300);
+      }
+
+      function setProgress(percent, msg = "Processing...") {
+        if (typeof percent !== 'number') percent = 0;
+        percent = Math.max(0, Math.min(100, Math.round(percent)));
+        currentProgress = percent;
+        progressFill.style.height = percent + "%";
+        popupPercent.textContent = percent + "%";
+        popupBar.style.width = percent + "%";
+        if (msg) popupMsg.textContent = msg;
+        if (operationStart) {
+          const elapsed = Math.floor((Date.now() - operationStart) / 1000);
+          popupTime.textContent = `${elapsed}s elapsed`;
+        }
+        if (percent >= 100 && isActiveOperation) {
+          setTimeout(()=> hideProgressWheel(), 450);
+        }
+      }
+
+      function openProgressPopup() {
+        progressPopup.style.display = "block";
+        progressPopup.setAttribute('aria-hidden', 'false');
+        popupPercent.textContent = currentProgress + "%";
+        popupBar.style.width = currentProgress + "%";
+        if (operationStart) {
+          const elapsed = Math.floor((Date.now() - operationStart) / 1000);
+          popupTime.textContent = `${elapsed}s elapsed`;
+        } else {
+          popupTime.textContent = "—";
+        }
+      }
+      function closeProgressPopup() {
+        progressPopup.style.display = "none";
+        progressPopup.setAttribute('aria-hidden', 'true');
+      }
+      progressWheel.addEventListener('click', (e) => {
+        if (progressPopup.style.display === 'block') closeProgressPopup();
+        else openProgressPopup();
+      });
+      popupClose.addEventListener('click', ()=> closeProgressPopup());
+
+      function enableDropHandlers() {
+        const modalInner = document.querySelector('#filesModal .modal');
+        if (!modalInner) return;
+        ['dragenter','dragover','dragleave','drop'].forEach(evt => {
+          modalInner.addEventListener(evt, (e)=> e.preventDefault(), { passive: false });
+        });
+        modalInner.addEventListener('dragenter', onDragEnter);
+        modalInner.addEventListener('dragover', onDragOver);
+        modalInner.addEventListener('dragleave', onDragLeave);
+        modalInner.addEventListener('drop', onDrop);
+      }
+
+      function disableDropHandlers() {
+        const modalInner = document.querySelector('#filesModal .modal');
+        if (!modalInner) return;
+        modalInner.removeEventListener('dragenter', onDragEnter);
+        modalInner.removeEventListener('dragover', onDragOver);
+        modalInner.removeEventListener('dragleave', onDragLeave);
+        modalInner.removeEventListener('drop', onDrop);
+      }
+
+      let dragCounter = 0;
+      function onDragEnter(e) {
+        e.preventDefault();
+        dragCounter++;
+        dropOverlay.classList.add('visible');
+        dropTitle.textContent = "Drop files here to upload";
+        dropSubtitle.textContent = "Release to upload to current folder";
+      }
+      function onDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        if (!dropOverlay.classList.contains('visible')) dropOverlay.classList.add('visible');
+      }
+      function onDragLeave(e) {
+        e.preventDefault();
+        dragCounter = Math.max(0, dragCounter - 1);
+        if (dragCounter === 0) dropOverlay.classList.remove('visible');
+      }
+
+      async function onDrop(e) {
+        e.preventDefault();
+        dragCounter = 0;
+        dropOverlay.classList.remove('visible');
+
+        const items = e.dataTransfer.files;
+        if (!items || items.length === 0) return;
+        const files = Array.from(items);
+        await uploadFilesSequential(files);
+      }
+
+      async function uploadFilesSequential(files) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const idx = i + 1;
+          const total = files.length;
+          const msgBase = `Uploading ${idx} of ${total} — ${file.name}`;
+          try {
+            await uploadSingleFileWithProgress(file, (percent, stateMsg) => {
+              setProgress(percent, stateMsg || msgBase);
+            }, msgBase);
+            await new Promise(r => setTimeout(r, 150));
+            loadExplorer(currentPath);
+          } catch (err) {
+            console.error('Upload failed for', file.name, err);
+            alert(`Upload failed for ${file.name}: ${err.message || err}`);
+          }
+        }
+        setTimeout(()=> { hideProgressWheel(); }, 400);
+        alert('Uploads completed');
+      }
+
+      function uploadSingleFileWithProgress(file, onProgress, baseMsg) {
+        return new Promise((resolve, reject) => {
+          const fd = new FormData();
+          fd.append('file', file);
+          fd.append('bot', bot);
+          fd.append('path', currentPath || '');
+
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', '/upload');
+
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+              const percent = Math.round((e.loaded / e.total) * 100);
+              onProgress(percent, `${baseMsg} (${percent}%)`);
+            } else {
+              onProgress(6, `${baseMsg}...`);
+            }
+          };
+
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const j = JSON.parse(xhr.responseText || "{}");
+                onProgress(100, j && j.msg ? j.msg : "Finalizing...");
+              } catch (e) {
+                onProgress(100, "Upload complete");
+              }
+              resolve();
+            } else {
+              reject(new Error(xhr.responseText || xhr.statusText || ('status ' + xhr.status)));
+            }
+          };
+
+          xhr.onerror = () => reject(new Error('Network error'));
+
+          showProgressWheel(0, baseMsg);
+          xhr.send(fd);
+        });
+      }
+
+      function normalizeInput(raw) {
+        if (typeof raw !== 'string') return '';
+        return raw.replace(/\r\n?/g, '\n');
+      }
+      function detectMonacoLanguage(path) {
+        const lower = (path || "").toLowerCase();
+        if (lower.endsWith(".js")) return "javascript";
+        if (lower.endsWith(".ts")) return "typescript";
+        if (lower.endsWith(".json") || lower.endsWith(".jsonc")) return "json";
+        if (lower.endsWith(".yml") || lower.endsWith(".yaml")) return "yaml";
+        if (lower.endsWith(".html") || lower.endsWith(".htm")) return "html";
+        if (lower.endsWith(".css")) return "css";
+        if (lower.endsWith(".java")) return "java";
+        if (lower.endsWith(".py")) return "python";
+        if (lower.endsWith(".md") || lower.endsWith(".markdown")) return "markdown";
+        if (lower.endsWith(".sh") || lower.endsWith(".bash") || lower.endsWith(".zsh")) return "shell";
+        if (lower.endsWith(".properties") || lower.endsWith(".ini") || lower.endsWith(".cfg") || lower.endsWith(".conf") || lower.endsWith(".env")) return "ini";
+        if (lower.endsWith(".xml") || lower.endsWith(".svg")) return "xml";
+        if (lower.endsWith(".sql")) return "sql";
+        return "plaintext";
+      }
+      function detectAceLanguage(path) {
+        const lower = (path || "").toLowerCase();
+        if (lower.endsWith(".js") || lower.endsWith(".mjs") || lower.endsWith(".cjs")) return "ace/mode/javascript";
+        if (lower.endsWith(".json") || lower.endsWith(".jsonc")) return "ace/mode/json";
+        if (lower.endsWith(".yml") || lower.endsWith(".yaml")) return "ace/mode/yaml";
+        if (lower.endsWith(".html") || lower.endsWith(".htm")) return "ace/mode/html";
+        if (lower.endsWith(".css")) return "ace/mode/css";
+        if (lower.endsWith(".java")) return "ace/mode/java";
+        if (lower.endsWith(".py")) return "ace/mode/python";
+        if (lower.endsWith(".sh") || lower.endsWith(".bash") || lower.endsWith(".zsh")) return "ace/mode/sh";
+        if (lower.endsWith(".properties") || lower.endsWith(".ini") || lower.endsWith(".cfg") || lower.endsWith(".conf") || lower.endsWith(".env")) return "ace/mode/ini";
+        return "ace/mode/text";
+      }
+      async function shouldUseAceFallback() {
+        if (useAceFallback !== null) return useAceFallback;
+        if (typeof ace === "undefined") { useAceFallback = false; return false; }
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+          || (navigator.maxTouchPoints > 1 && window.innerWidth < 1100);
+        if (isMobile) { useAceFallback = true; return true; }
+        const cores = navigator.hardwareConcurrency || 2;
+        const memory = navigator.deviceMemory || 4;
+        if (cores < 2 || memory < 2) { useAceFallback = true; return true; }
+        useAceFallback = false;
+        return false;
+      }
+      function loadMonaco() {
+        if (window.monaco) return Promise.resolve(window.monaco);
+        if (monacoLoaderPromise) return monacoLoaderPromise;
+        monacoLoaderPromise = new Promise((resolve, reject) => {
+          if (typeof require === "undefined") { reject(new Error("Monaco loader not available")); return; }
+          require.config({ paths: { vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs" }, waitSeconds: 10 });
+          require(["vs/editor/editor.main"], function (m) {
+            try { m.editor.setTheme("vs-dark"); } catch (e) { }
+            resolve(m);
+          }, function (err) { reject(err); });
+        });
+        return monacoLoaderPromise;
+      }
+      function flashEditorBar() {
+        const fill = document.getElementById('editorFlashFill');
+        if (!fill) return;
+        fill.classList.remove('complete');
+        fill.style.width = '0%';
+        void fill.offsetWidth;
+        fill.style.width = '70%';
+        setTimeout(() => { fill.style.width = '90%'; }, 150);
+        setTimeout(() => { fill.classList.add('complete'); }, 300);
+        setTimeout(() => { fill.classList.remove('complete'); fill.style.width = '0%'; }, 1100);
+      }
+      async function openAceEditor(content, filePath) {
+        if (monacoContainer) monacoContainer.style.display = "none";
+        if (aceContainer) aceContainer.style.display = "block";
+        codeShell.style.display = "flex";
+        textArea.style.display = "none";
+        if (typeof ace === "undefined") {
+          codeShell.style.display = "none";
+          if (aceContainer) aceContainer.style.display = "none";
+          textArea.style.display = "block";
+          textArea.value = content;
+          textArea.dataset.original = content;
+          textArea.focus();
+          return;
+        }
+        if (!aceEditor) {
+          ace.config.set("basePath", "https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict");
+          aceEditor = ace.edit(aceContainer, {
+            theme: "ace/theme/one_dark",
+            fontSize: 14,
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+            showPrintMargin: false,
+            tabSize: 2,
+            useSoftTabs: true,
+            wrap: false,
+            scrollPastEnd: false,
+            animatedScroll: true,
+            highlightActiveLine: true,
+            highlightGutterLine: true,
+            showLineNumbers: true,
+            showGutter: true,
+            displayIndentGuides: true,
+            fixedWidthGutter: false
+          });
+          // Ctrl+S save binding for Ace
+          aceEditor.commands.addCommand({
+            name: 'save',
+            bindKey: { win: 'Ctrl-S', mac: 'Cmd-S' },
+            exec: () => { editorSave.click(); }
+          });
+          aceEditor.resize(true);
+        }
+        const mode = detectAceLanguage(filePath);
+        aceEditor.session.setMode(mode);
+        aceEditor.setValue(content, -1);
+        aceEditor.clearSelection();
+        aceEditor.moveCursorTo(0, 0);
+        requestAnimationFrame(() => { if (aceEditor) aceEditor.resize(true); });
+        aceEditor.focus();
+      }
+      async function openEditorModal(path, content) {
+        animateModalOpen(editorModal);
+        editorPath.textContent = path || "";
+        const normalized = normalizeInput(content || "");
+        editorOriginalContent = normalized;
+
+        codeShell.style.display = "flex";
+        textArea.style.display = "none";
+
+        const fallback = await shouldUseAceFallback();
+
+        if (!fallback) {
+          if (monacoContainer) monacoContainer.style.display = "block";
+          if (aceContainer) aceContainer.style.display = "none";
+          try {
+            const monaco = await loadMonaco();
+            const lang = detectMonacoLanguage(path);
+            if (monacoEditor) {
+              const oldModel = monacoEditor.getModel();
+              const newModel = monaco.editor.createModel(normalized, lang);
+              monacoEditor.setModel(newModel);
+              if (oldModel) oldModel.dispose();
+              monacoEditor.setScrollTop(0);
+              monacoEditor.setScrollLeft(0);
+            } else {
+              monacoEditor = monaco.editor.create(monacoContainer, {
+                value: normalized,
+                language: lang,
+                theme: "vs-dark",
+                automaticLayout: true,
+                fontSize: 14,
+                minimap: { enabled: false },
+                quickSuggestions: false,
+                suggestOnTriggerCharacters: false,
+                wordBasedSuggestions: "off",
+                parameterHints: { enabled: false },
+                snippetSuggestions: "none",
+                scrollBeyondLastLine: false,
+                scrollBeyondLastColumn: 0,
+                tabSize: 2,
+                insertSpaces: true,
+                detectIndentation: false,
+                autoIndent: "full",
+                formatOnType: true,
+                formatOnPaste: true
+              });
+              // Ctrl+S save binding for Monaco
+              monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+                editorSave.click();
+              });
+            }
+            monacoEditor.focus();
+          } catch (err) {
+            console.error("Failed to init Monaco, trying Ace fallback:", err);
+            useAceFallback = true;
+            monacoLoaderPromise = null;
+            if (monacoContainer) monacoContainer.style.display = "none";
+            await openAceEditor(normalized, path);
+          }
+        } else {
+          await openAceEditor(normalized, path);
+        }
+      }
+      function closeEditorModal() {
+        animateModalClose(editorModal, () => {
+          editorPath.textContent = '';
+          if (monacoEditor) {
+            const model = monacoEditor.getModel && monacoEditor.getModel();
+            if (model) model.dispose();
+            monacoEditor.setModel(null);
+          }
+          if (aceEditor) aceEditor.setValue('', -1);
+          if (aceContainer) aceContainer.style.display = 'none';
+          if (codeShell) codeShell.style.display = 'none';
+          if (textArea) { textArea.value = ''; textArea.dataset.original = ''; textArea.style.display = 'none'; }
+          editorOriginalContent = "";
+        });
+      }
+
+      editorModalClose.addEventListener('click', closeEditorModal);
+      editorDiscard.addEventListener('click', () => {
+        if (monacoEditor && monacoEditor.getModel && monacoEditor.getModel()) {
+          monacoEditor.setValue(editorOriginalContent || "");
+          monacoEditor.setScrollTop(0);
+          monacoEditor.setScrollLeft(0);
+          return;
+        }
+        if (aceEditor && aceContainer && aceContainer.style.display !== 'none') {
+          aceEditor.setValue(editorOriginalContent || "", -1);
+          aceEditor.clearSelection();
+          aceEditor.moveCursorTo(0, 0);
+          return;
+        }
+        if (textArea && textArea.style.display !== 'none') {
+          textArea.value = editorOriginalContent || textArea.dataset.original || '';
+        }
+      });
+
+      editorSave.addEventListener('click', () => {
+        const path = editorPath.textContent;
+        if (!path) return alert('No file open');
+        let contentToSave = '';
+        if (monacoEditor && monacoEditor.getModel && monacoEditor.getModel()) {
+          contentToSave = monacoEditor.getValue();
+        } else if (aceEditor && aceContainer && aceContainer.style.display !== 'none') {
+          contentToSave = aceEditor.getValue();
+        } else if (textArea && textArea.style.display !== 'none') {
+          contentToSave = textArea.value;
+        }
+        socket.emit('writeFile', { bot, path, content: contentToSave });
+        setTimeout(() => { loadExplorer(currentPath); flashEditorBar(); closeEditorModal(); }, 200);
+      });
+
+      function run() {
+        consoleEl.textContent = '';
+        const savedStartup = localStorage.getItem(`startup-${bot}`) || '';
+        const selected = savedStartup || scriptSelect.value;
+        if (!selected) return alert('No script selected to run');
+        statusLabel.textContent = 'running';
+        socket.emit('action', { bot, cmd: 'run', file: selected });
+      }
+      function stop() {
+        statusLabel.textContent = 'stopping';
+        socket.emit('action', { bot, cmd: 'stop' });
+        setTimeout(()=> statusLabel.textContent = 'idle', 500);
+      }
+
+      fileUploadModal.addEventListener('change', () => {
+        const f = fileUploadModal.files[0];
+        if (!f) return;
+        uploadSingleFileWithProgress(f, (percent, msg) => {
+          setProgress(percent, msg);
+        }, `Uploading 1 of 1 — ${f.name}`)
+        .then(()=> {
+          loadExplorer(currentPath);
+          setTimeout(()=> { hideProgressWheel(); alert('Upload complete'); }, 350);
+        })
+        .catch((err)=> {
+          hideProgressWheel();
+          alert('Upload failed: ' + (err && err.message ? err.message : 'unknown'));
+        })
+        .finally(()=> { fileUploadModal.value = ''; });
+      });
+
+      function startSimulatedProgress(from = 0, to = 90, duration = 400) {
+        if (simInterval) { clearInterval(simInterval); simInterval = null; }
+        let pct = from;
+        const steps = Math.max(8, Math.floor(duration / 80));
+        const step = (to - from) / steps;
+        simInterval = setInterval(()=> {
+          pct = Math.min(99, pct + step);
+          setProgress(Math.round(pct));
+          if (pct >= to) {
+            clearInterval(simInterval);
+            simInterval = null;
+          }
+        }, Math.max(40, Math.floor(duration / steps)));
+      }
+
+      function createNew() {
+        const type = prompt("Type 'file' to create a file or 'folder' to create a folder:");
+        if (!type || (type !== 'file' && type !== 'folder')) return alert('Invalid type.');
+        const name = prompt(`Enter ${type} name:`);
+        if (!name) return;
+
+        showProgressWheel(4, type === 'file' ? "Creating file..." : "Creating folder...");
+        startSimulatedProgress(4, 88, 420);
+
+        fetch('/create', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ bot, type, name, path: currentPath })
+        })
+        .then(async (r)=> {
+          if(!r.ok) {
+            const txt = await r.text().catch(()=>null);
+            throw new Error(txt || 'Error creating ' + type);
+          }
+          return r.text();
+        })
+        .then(()=> {
+          setProgress(100, (type === 'file' ? "File created" : "Folder created"));
+          loadExplorer(currentPath);
+          setTimeout(()=> { hideProgressWheel(); alert((type === 'file' ? 'File' : 'Folder') + ' created successfully'); }, 350);
+        })
+        .catch((err)=> {
+          hideProgressWheel();
+          alert(err.message);
+        });
+      }
+
+      const PKG_PREFIXES = ['npm ', 'npx ', 'node ', 'pip ', 'pip3 ', 'python ', 'python3 '];
+
+      function sendCommand() {
+        const cmd = cmdInput.value.trim();
+        if (cmd === '') return;
+        // Route package/runtime commands through the secure packageCmd handler
+        if (PKG_PREFIXES.some(p => cmd.startsWith(p)) || PKG_PREFIXES.some(p => cmd === p.trim())) {
+          socket.emit('packageCmd', { bot, cmd });
+        } else {
+          socket.emit('command', { bot, command: cmd });
+        }
+        cmdInput.value = '';
+      }
+      cmdInput.addEventListener('keyup', (e)=> { if (e.key === 'Enter') sendCommand(); });
+
+      // Package manager menu
+      const pkgMenu = document.getElementById('pkgMenu');
+
+      function openPkgMenu(btn) {
+        const rect = btn.getBoundingClientRect();
+        pkgMenu.style.left = rect.left + 'px';
+        pkgMenu.style.top = (rect.bottom + 6) + 'px';
+        pkgMenu.classList.toggle('show');
+      }
+
+      function closePkgMenu() { pkgMenu.classList.remove('show'); }
+
+      function pkgCmd(cmd) {
+        closePkgMenu();
+        socket.emit('packageCmd', { bot, cmd });
+        focusConsole();
+      }
+
+      function pkgPrompt(prefix) {
+        closePkgMenu();
+        const arg = prompt(prefix + ' — enter argument(s):');
+        if (!arg || !arg.trim()) return;
+        socket.emit('packageCmd', { bot, cmd: prefix + ' ' + arg.trim() });
+        focusConsole();
+      }
+
+      function pkgCustom() {
+        closePkgMenu();
+        const cmd = prompt('Enter a package/runtime command (npm, pip, python, node, npx):');
+        if (!cmd || !cmd.trim()) return;
+        socket.emit('packageCmd', { bot, cmd: cmd.trim() });
+        focusConsole();
+      }
+
+      // Close pkg menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#pkgMenu') && !e.target.closest('[onclick*="openPkgMenu"]')) {
+          closePkgMenu();
+        }
+      });
+
+      function clearConsole(){ consoleEl.textContent = ''; }
+      function focusConsole(){ window.scrollTo({ top: 0, behavior:'smooth' }); cmdInput.focus(); }
+
+      const dockWrap = document.querySelector('.dock-wrap');
+
+      function showDock() { if (dockWrap) dockWrap.classList.remove('dock-hidden'); }
+      function hideDock() { if (dockWrap) dockWrap.classList.add('dock-hidden'); }
+
+      function animateModalOpen(modal) {
+        modal.style.display = 'flex';
+        modal.classList.remove('closing');
+        modal.classList.add('show');
+        hideDock();
+      }
+
+      function animateModalClose(modal, cb) {
+        modal.classList.remove('show');
+        modal.classList.add('closing');
+        setTimeout(() => {
+          modal.classList.remove('closing');
+          modal.style.display = 'none';
+          if (cb) cb();
+          // Show dock if no modals are open
+          const anyOpen = [filesModal, editorModal, taskModal].some(m => m && m.classList.contains('show'));
+          if (!anyOpen) showDock();
+        }, 300);
+      }
+
+      function openFilesModal(){
+        animateModalOpen(filesModal);
+        loadExplorer(currentPath);
+        enableDropHandlers();
+      }
+      function closeFilesModal(){ animateModalClose(filesModal, disableDropHandlers); }
+      filesModalClose.addEventListener('click', closeFilesModal);
+
+      function openTaskModal(){
+        animateModalOpen(taskModal);
+        loadExplorer(currentPath);
+      }
+      function closeTaskModal(){ animateModalClose(taskModal); }
+      taskModalClose.addEventListener('click', closeTaskModal);
+
+      saveStartupBtn.addEventListener('click', ()=> {
+        const val = taskStartupSelect.value || '';
+        if (val) {
+          localStorage.setItem(`startup-${bot}`, val);
+          alert('Startup file saved: ' + val);
+        } else {
+          localStorage.removeItem(`startup-${bot}`);
+          alert('Startup file cleared');
+        }
+      });
+
+      document.addEventListener('keydown', (e)=> {
+        // Ctrl+S / Cmd+S to save in editor
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+          if (editorModal && editorModal.classList.contains('show')) {
+            e.preventDefault();
+            editorSave.click();
+            return;
+          }
+        }
+        if (e.key === 'Escape') {
+          if (editorModal && editorModal.classList.contains('show')) { closeEditorModal(); return; }
+          if (filesModal && filesModal.classList.contains('show')) { closeFilesModal(); return; }
+          if (taskModal && taskModal.classList.contains('show')) { closeTaskModal(); return; }
+          if (progressPopup && progressPopup.style.display === 'block') { closeProgressPopup(); return; }
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        document.querySelectorAll('.more-menu.show').forEach(m => m.classList.remove('show'));
+      });
+
+      document.addEventListener('DOMContentLoaded', ()=> {
+        loadExplorer();
+        function applyScale() {
+          const dpr = window.devicePixelRatio || 1;
+          const scale = Math.max(0.75, Math.min(1.12, dpr));
+          document.documentElement.style.setProperty('--ui-scale', scale);
+        }
+        applyScale();
+        window.addEventListener('resize', applyScale);
+      });
+
+      socket.on('output', ()=> { consoleEl.scrollTop = consoleEl.scrollHeight; });
+    </script>
+
+    <script src="https://kit.fontawesome.com/6bcbc61285.js" crossorigin="anonymous"></script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+{
+  "rate_limiting": false,
+  "limit": 5,
+  "window_seconds": 120
+}

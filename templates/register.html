@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Register ADPanel</title>
+    <link rel="stylesheet" href="/login.css">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://cdn.jsdelivr.net/gh/antonndev/ADCDn/adpanel-dark.webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <video autoplay muted loop class="video">
+        <source src="https://cdn.jsdelivr.net/gh/antonndev/ADCDn/bgvid.webm" type="video/mp4">
+        Your browser does not support instant-video.
+    </video>
+
+    <svg xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" />
+                <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
+                <feDisplacementMap in="SourceGraphic" in2="blurred" scale="77" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+        </defs>
+    </svg>
+
+    <form method="POST" action="/register">
+        <div style="text-align:center;margin-bottom:16px;">
+            <p style="color:#aaa;font-size:13px;margin:0 0 8px">Scan with your authenticator app</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=otpauth://totp/ADPanel:user?secret={{ secret }}&issuer=ADPanel&algorithm=SHA1&digits=6&period=30" alt="QR Code" style="border-radius:10px;background:#fff;padding:6px;" width="180" height="180">
+            <p style="color:#666;font-size:11px;margin:8px 0 0;word-break:break-all;">Secret: {{ secret }}</p>
+        </div>
+        <i class="fa-solid fa-envelope" style="position: absolute; color: #4F4F4F; margin-top: 12px; margin-left: -25px; font-size: 16px;"></i>
+        <input type="email" name="email" placeholder="Email" required style="color: #424242; border-radius: 10px; padding-left: 40px; height: 20px; border: none; outline: none; width: 335px; margin-left: -40px;">
+        <i class="fa-solid fa-lock" style="position: absolute; color: #4F4F4F; margin-top: 61px; height: 20px; margin-left: -25px;"></i>
+        <input type="password" name="password" placeholder="Password (min 8 chars)" required style="padding-left: 40px; border-radius: 10px; height: 20px; color: #424242; border: none; outline: none; width: 335px; margin-left: -40px;">
+        <i class="fa-solid fa-fingerprint" style="position: absolute; color: #4F4F4F; margin-top: 112px; z-index: 100; margin-left: -25px;"></i>
+        <input type="text" name="code" placeholder="2FA Code from app" required style="position: relative; color: #424242; border-radius: 10px; height: 20px; padding-left: 40px; border: none; outline: none; width: 335px; margin-left: -40px;">
+        <button type="submit" class="get-started">Create Account</button>
+        <a class="forgot-password" href="/login">Back to login</a>
+        <div class="circle-icon">
+            <i class="fa-solid fa-user-plus" style="color: black; font-size: 22px; margin-top: -50px; margin-left: -10px;"></i>
+        </div>
+    </form>
+
+    <div class="sign-up-subline">
+        <a class="sign-up-sublines">set up your 2FA</a>
+    </div>
+    <div class="sign-ups">
+        <a class="sign-up-desc">Register a new account</a>
+    </div>
+    <div>
+        <a class="sign-up">Create your account</a>
+    </div>
+</body>
+</html>

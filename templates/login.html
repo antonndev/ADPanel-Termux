@@ -1,0 +1,121 @@
+          <!DOCTYPE html>
+          <html lang="ro"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+                  <title>Login ADPanel</title>
+                  <link rel="stylesheet" href="/login.css">
+                  <link rel="icon" type="image/png" sizes="16x16" href="https://cdn.jsdelivr.net/gh/antonndev/ADCDn/adpanel-dark.webp">
+                  <link rel="preconnect" href="https://fonts.googleapis.com/">
+                  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+      </head>
+
+                  <body>
+                  <video autoplay muted loop class="video">
+                      <source src="https://cdn.jsdelivr.net/gh/antonndev/ADCDn/bgvid.webm" type="video/mp4">
+                      Your browser does not support instant-video.
+                  </video>
+
+    <svg xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" />
+                <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
+                <feDisplacementMap in="SourceGraphic" in2="blurred" scale="77" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+        </defs>
+    </svg>
+
+
+                  <form method="POST" action="/login">
+                    <i class="fa-solid fa-envelope" style="position: absolute; color: #4F4F4F; margin-top: 12px; margin-left: -25px; font-size: 16px;"></i>
+                    <input type="email" name="email" placeholder="Email" required"="" style="color: #424242; border-radius: 10px; padding-left: 40px; height: 20px; border: none; outline: none;  width: 335px; margin-left: -40px;">
+                    <i class="fa-solid fa-lock" style="position: absolute; color: #4F4F4F; margin-top: 61px; height: 20px; margin-left: -25px;"></i>
+                    <input type="password" name="password" placeholder="Password" required="" style="padding-left: 40px; border-radius: 10px; height: 20px; color: #424242; border: none; outline: none;  width: 335px; margin-left: -40px;">
+                    <i class="fa-solid fa-fingerprint" style="position: absolute; color: #4F4F4F; margin-top: 112px; z-index: 100; margin-left: -25px;"></i>
+                    <input type="text" name="code" placeholder="2FA Code" required="" style="position: relative; color: #424242; border-radius: 10px; height: 20px; padding-left: 40px; border: none; outline: none;  width: 335px; margin-left: -40px;">
+                    <button type="submit" class="get-started">Get Started</button>
+                    <a class="forgot-password" href="/forgot-password">Forgot password?</a>
+                    <div class="circle-icon">
+                      <i class="fa-solid fa-arrow-right-to-bracket" style="color: black; font-size: 25px; margin-top: -50px; margin-left: -10px;"></i>
+                    </div>
+                  </form>
+            <div class="menu">
+             </div>
+         <div class="sign-up-subline">
+             <a class="sign-up-sublines">
+              and make something special
+            </a>
+        </div>
+
+          <div class="sign-ups">
+            <a class="sign-up-desc">
+              Secure manage your applications with style
+            </a>
+          </div>
+                  <div>
+                    <a class="sign-up">
+                      Sign in with email
+                    </a>
+                  </div>
+        <div class="watermark" id="watermark">
+          <img src="https://cdn.jsdelivr.net/gh/antonndev/ADCDn/watermark.webp" alt="watermark" draggable="false">
+        </div>
+
+      <div id="menuBtn">
+        <span></span>
+        <span></span>
+      </div>
+
+
+
+                      <script>
+        dragElement(document.querySelector('.menu'));
+        function dragElement(elmnt) {
+            let startX = 0, startY = 0;
+
+            const onPointerDown = e => {
+                e.preventDefault();
+                const rect = elmnt.getBoundingClientRect();
+                elmnt.style.position = 'absolute';
+                elmnt.style.top = rect.top + 'px';
+                elmnt.style.left = rect.left + 'px';
+                elmnt.style.transform = 'none';
+
+                startX = e.clientX;
+                startY = e.clientY;
+                document.addEventListener('pointermove', onPointerMove);
+                document.addEventListener('pointerup', onPointerUp, { once: true });
+            };
+
+            const onPointerMove = e => {
+                e.preventDefault();
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                startX = e.clientX;
+                startY = e.clientY;
+                elmnt.style.left = (elmnt.offsetLeft + dx) + 'px';
+                elmnt.style.top = (elmnt.offsetTop + dy) + 'px';
+            };
+
+            const onPointerUp = () => {
+                document.removeEventListener('pointermove', onPointerMove);
+            };
+
+            elmnt.addEventListener('pointerdown', onPointerDown);
+        }
+    </script>
+
+<script>
+const menuBtn = document.getElementById('menuBtn');
+const watermark = document.getElementById('watermark');
+
+menuBtn.addEventListener('click', () => {
+  menuBtn.classList.toggle('active');
+  watermark.classList.toggle('show');
+});
+</script>
+
+</body>
+</html>

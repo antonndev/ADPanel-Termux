@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="settings.css">
+  <title>ADPanel Settings</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="https://cdn.jsdelivr.net/gh/antonndev/ADCDn/adpanel-dark.webp">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div id="themeOverlay" class="theme-overlay" aria-hidden="true"></div>
+
+  <div class="closeEscFixed" id="closeEscFixed" title="Esc → Close (go to /)">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <i class="fa-solid fa-xmark"></i>
+      <small>ESC</small>
+    </div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="brand">
+        <div class="logo"><i class="fa-solid fa-cog"></i></div>
+        <div>
+          <h1>Settings</h1>
+          <p>Make ADPanel yours.</p>
+        </div>
+      </div>
+
+      <nav class="nav" id="sidebarNav">
+        <button data-panel="preferences" class="active"><i class="fa-solid fa-cog"></i> Preferences</button>
+        <button data-panel="account"><i class="fa-solid fa-user"></i> Account</button>
+        <button data-panel="servers"><i class="fa-solid fa-server"></i> Servers</button>
+      </nav>
+
+      <div style="margin-top:12px;border-top:1px dashed rgba(15,23,42,0.04);padding-top:12px;flex:0 0 auto">
+        <div style="font-weight:700;margin-bottom:8px">Theme</div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1">
+            <button id="themeLight" class="theme-btn">White</button>
+          </div>
+          <div style="flex:1">
+            <button id="themeDark" class="theme-btn">Dark</button>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <main>
+      <section class="panel" aria-labelledby="settings-title">
+        <h2 id="settings-title">Settings</h2>
+
+        <div class="layout-inner">
+          <div class="content-flex">
+            <div class="content-area">
+              <div id="preferences" class="panel-section active">
+                <div class="panelinfo-header">
+                  <div>
+                    <div class="panelinfo-title">Preferences</div>
+                    <div class="panelinfo-subtitle">Bring ADPanel to your style.</div>
+                  </div>
+                </div>
+
+                <div class="panelinfo-content">
+                  <div class="glass-card">
+                    <div class="glass-card-inner">
+                      <div class="glass-card-header">
+                        <div class="glass-card-title"><i class="fa-regular fa-image"></i> <span>Background Selection</span></div>
+                        <div class="glass-card-subtitle">First, you need a unique look</div>
+                      </div>
+
+                      <div class="bg-section-grid">
+                        <div class="bg-preview-wrapper">
+                          <div class="bg-preview" id="bgPreview">
+                            <div class="label">Main color</div>
+                            <div class="bg-preview-text">
+                              <div class="bg-hex-display" id="bgHex">#282c34</div>
+                              <div class="bg-preview-label">Preview area</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="bg-controls-wrapper">
+                          <div class="control-group">
+                            <label>Main Theme Color</label>
+                            <div class="color-picker-row">
+                              <div class="color-picker-wrapper">
+                                <div class="color-dot" id="colorDot" style="background:#282c34"></div>
+                                <input type="color" id="colorPicker" value="#282c34" title="Pick main color">
+                              </div>
+                              <input type="text" id="hexInput" value="#282c34" class="glass-input" aria-label="Hex input">
+                              <button class="btn-glass" id="applyColorBtn"><i class="fa-solid fa-check"></i> Apply</button>
+                            </div>
+                          </div>
+
+                          <div class="control-group">
+                            <label>Background Image</label>
+                            <div class="upload-row">
+                              <div class="btn-upload" id="uploadBtn" role="button" tabindex="0"><i class="fa-solid fa-upload"></i> Upload</div>
+                              <input id="uploadFile" type="file" accept="image/*" style="position:absolute;width:0;height:0;opacity:0;overflow:hidden">
+                              <input type="text" id="urlInput" placeholder="Paste image URL" class="glass-input">
+                              <button class="btn-glass" id="useUrlBtn">Use</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="thumbs-section">
+                        <div class="thumbs-title">Thumbnail Previews</div>
+                        <div class="thumbs" id="thumbs"></div>
+                      </div>
+
+                      <div class="note">Note: background set here will be applied to the dashboard and main style files.</div>
+                    </div>
+                  </div>
+
+                  <div class="glass-card">
+                    <div class="glass-card-inner">
+                      <div class="glass-card-header">
+                        <div class="background-title"><i class="fa-solid fa-floppy-disk"></i> <span>Saved Background</span></div>
+                      </div>
+                      <div id="savedBg" class="saved-bg-value">None</div>
+                    </div>
+                  </div>
+
+                  <div class="glass-card">
+                    <div class="glass-card-inner">
+                      <div class="glass-card-header">
+                        <div class="glass-card-title"><i class="fa-solid fa-sliders"></i> <span>Other Preferences</span></div>
+                        <div class="glass-card-subtitle">Density, animations and accent color</div>
+                      </div>
+                      <div class="prefs-list-glass">
+                        <div class="pref-row">
+                          <div>
+                            <div class="pref-label">Density</div>
+                            <small class="muted">Compact / Comfortable</small>
+                          </div>
+                          <div>
+                            <select id="densitySelect" class="density-select">
+                              <option value="comfortable">Comfortable</option>
+                              <option value="compact">Compact</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="pref-row">
+                          <div>
+                            <div class="pref-label">Animations</div>
+                            <small class="muted">Enable/Disable UI animations</small>
+                          </div>
+                          <div>
+                            <label class="checkbox-label"><input type="checkbox" id="animationsToggle" checked> On</label>
+                          </div>
+                        </div>
+
+                        <div class="pref-row">
+                          <div>
+                            <div class="pref-label">Accent color</div>
+                            <small class="muted">Change UI accent color</small>
+                          </div>
+                          <div>
+                            <input type="color" id="accentPicker" value="#4f46e5">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="preferences-grid">
+                    <div class="saved-bg-card">
+                      <div class="saved-bg-title">Theme</div>
+                      <div id="savedTheme" class="saved-bg-value-inline">White</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="account" class="panel-section">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="font-weight:700">Account</div>
+                    <div style="color:var(--muted)">Account settings</div>
+                  </div>
+                </div>
+                <div class="logout">
+                  <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i><a>Log Out</a></button>
+                </div>
+
+                <div style="margin-top:12px;display:grid;gap:8px">
+
+                  <div id="changePassCard" class="clickable-card" style="margin-top:6px;padding:12px;border-radius:10px;background:var(--card-contrast-bg);">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <div>
+                        <div style="font-weight:700">Change password</div>
+                        <small style="color:var(--muted)">Requires current password & 2FA at login (if enabled)</small>
+                      </div>
+                      <div style="font-size:18px;color:var(--muted)"><i class="fa-solid fa-key"></i></div>
+                    </div>
+                  </div>
+
+                  <div style="margin-top:10px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(15,23,42,0.04);font-size:13px;color:var(--muted)">
+                    <strong>NOTE:</strong> Other settings are changed via the <code>initialize.sh</code> script in the <code>adpanel</code> folder.
+                  </div>
+
+                  <div id="accountsSection" style="margin-top:12px;">
+                    <div style="font-weight:700;margin-bottom:8px">Accounts</div>
+                    <div style="color:var(--muted);margin-bottom:8px">List of accounts from <code>user-access.json</code> (admins are excluded).</div>
+                    <div id="accountsList" style="display:grid;gap:8px">
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div id="servers" class="panel-section">
+                <div class="servers-header">
+                  <div>
+                    <div style="font-weight:700">Servers</div>
+                    <div style="color:var(--muted)">Manage yours</div>
+                  </div>
+
+                  <div class="create-inline">
+                    <div class="server-search-wrapper">
+                      <i class="fa-solid fa-magnifying-glass server-search-icon"></i>
+                      <input id="serverSearch" type="text" placeholder="Search servers…" aria-label="Search servers" class="server-search-input" />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="serversList" style="margin-top:12px;display:grid;gap:8px">
+                </div>
+
+                <div class="servers-note">
+                  <i class="fa-solid fa-circle-info"></i>
+                  Servers are managed from the dashboard. Use the <i class="fa-solid fa-trash"></i> trash icon to permanently remove a folder.
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <div id="accountModalOverlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal" id="accountModal">
+      <h3 id="accountModalTitle">Manage access</h3>
+      <div id="accountModalBody" style="margin-top:10px;max-height:360px;overflow:auto"></div>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn ghost" id="accountModalClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalOverlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal" id="changeModal">
+      <h3>Change password</h3>
+      <div style="margin-top:10px;display:grid;gap:8px">
+        <input type="password" id="modalCurrent" placeholder="Current password" style="padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">
+        <input type="password" id="modalNew" placeholder="New password (min 8 chars)" style="padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">
+        <input type="password" id="modalConfirm" placeholder="Confirm new password" style="padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="modalCancel">Cancel</button>
+        <button class="btn" id="modalSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const THEME_KEY = 'ui-theme';
+    const BG_KEY = 'ui-background';
+    const ACCENT_KEY = 'ui-accent';
+    const DENSITY_KEY = 'ui-density';
+    const ANIM_KEY = 'ui-animations';
+
+    const themeLight = document.getElementById('themeLight');
+    const themeDark = document.getElementById('themeDark');
+    const body = document.body;
+    const sidebarNav = document.getElementById('sidebarNav');
+    const sections = document.querySelectorAll('.panel-section');
+    const closeEscFixed = document.getElementById('closeEscFixed');
+    const themeOverlay = document.getElementById('themeOverlay');
+
+    const modalOverlay = document.getElementById('modalOverlay');
+    const changeModal = document.getElementById('changeModal');
+    const changePassCard = document.getElementById('changePassCard');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalSave = document.getElementById('modalSave');
+
+    const accountModalOverlay = document.getElementById('accountModalOverlay');
+    const accountModal = document.getElementById('accountModal');
+    const accountModalTitle = document.getElementById('accountModalTitle');
+    const accountModalBody = document.getElementById('accountModalBody');
+    const accountModalClose = document.getElementById('accountModalClose');
+
+    const serversListEl = document.getElementById('serversList');
+
+    const accountsListEl = document.getElementById('accountsList');
+
+    function applyTheme(theme, animate = true){
+      if(animate){ themeOverlay.classList.add('show'); setTimeout(()=> themeOverlay.classList.remove('show'), 420); }
+      if(theme === 'dark') body.setAttribute('data-theme','dark'); else body.removeAttribute('data-theme');
+      themeLight.classList.remove('active'); themeDark.classList.remove('active'); if(theme === 'dark') themeDark.classList.add('active'); else themeLight.classList.add('active');
+      document.getElementById('savedTheme').textContent = theme === 'dark' ? 'Dark' : 'White';
+    }
+
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+    applyTheme(savedTheme, false);
+    themeLight.addEventListener('click', ()=>{ localStorage.setItem(THEME_KEY,'white'); applyTheme('white', true); });
+    themeDark.addEventListener('click', ()=>{ localStorage.setItem(THEME_KEY,'dark'); applyTheme('dark', true); });
+
+    sidebarNav.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button'); if(!btn) return;
+      sidebarNav.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = btn.dataset.panel;
+      sections.forEach(s=>s.classList.remove('active'));
+      const target = document.getElementById(panel); if(target) target.classList.add('active');
+
+      if(panel === 'servers') {
+        loadServers();
+      }
+      if(panel === 'account') {
+        loadAccounts();
+      }
+    });
+
+    function deleteAllClientCookies() {
+      const cookies = document.cookie.split("; ");
+      for (const cookie of cookies) {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      }
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      try {
+        deleteAllClientCookies();
+        await fetch('/logout', { method: 'POST', credentials: 'include' });
+        location.href = '/login';
+      } catch (err) {
+        console.error(err);
+        alert('Failed to log out');
+      }
+    });
+
+    function goHome(){ window.location.href = '/'; }
+    closeEscFixed.addEventListener('click', goHome);
+    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') goHome(); });
+
+    const presets = [
+      {id:1,url:'https://images.hdqwalls.com/wallpapers/waves-digital-art-4k-m8.jpg'},
+      {id:2,url:'https://images.hdqwalls.com/wallpapers/colorful-mountains-night-minimal-8k-w5.jpg'},
+      {id:3,url:'https://raw.githubusercontent.com/BridgeHosting/manelemp3/refs/heads/main/manele/sunset-scenery-minimalist-digital-art-8k-wallpaper-uhdpaper.com-172%405%40b.webp'},
+      {id:4,url:'https://cdn.pixabay.com/photo/2024/07/19/08/16/waves-8905720_1280.png'}
+    ];
+
+    const thumbsEl = document.getElementById('thumbs');
+    const bgPreview = document.getElementById('bgPreview');
+    const colorPicker = document.getElementById('colorPicker');
+    const hexInput = document.getElementById('hexInput');
+    const colorDot = document.getElementById('colorDot');
+    const applyColorBtn = document.getElementById('applyColorBtn');
+    const bgHex = document.getElementById('bgHex');
+    const uploadFile = document.getElementById('uploadFile');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const urlInput = document.getElementById('urlInput');
+    const useUrlBtn = document.getElementById('useUrlBtn');
+    const densitySelect = document.getElementById('densitySelect');
+    const animationsToggle = document.getElementById('animationsToggle');
+    const accentPicker = document.getElementById('accentPicker');
+    const savedBg = document.getElementById('savedBg');
+
+    if (uploadBtn) uploadBtn.addEventListener('click', () => uploadFile.click());
+
+    async function sendBackgroundToServer(obj) {
+      try {
+        const res = await fetch('/api/settings/background', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(obj)
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(()=>({error:'failed'}));
+          console.warn("Server returned error:", err);
+        } else {
+          console.log("Background updated on server");
+        }
+      } catch (e) {
+        console.error("Failed to send background to server", e);
+      }
+    }
+
+    presets.forEach(p => {
+      const el = document.createElement('div');
+      el.className = 'thumb';
+      el.dataset.url = p.url;
+      el.innerHTML = `<img src="${p.url}" alt="preset-${p.id}">`;
+      el.addEventListener('click', () => selectThumb(el));
+      thumbsEl.appendChild(el);
+    });
+
+    function selectThumb(el){
+      document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('selected'));
+      el.classList.add('selected');
+      const url = el.dataset.url;
+      bgPreview.style.backgroundImage = `url(${url})`;
+      bgPreview.style.backgroundSize = 'cover';
+      bgPreview.style.backgroundPosition = 'center';
+      const obj = {type:'url', value:url};
+      localStorage.setItem(BG_KEY, JSON.stringify(obj));
+      updateSavedBgText();
+      sendBackgroundToServer(obj);
+    }
+
+    function setColor(hex){
+      colorPicker.value = hex;
+      hexInput.value = hex;
+      colorDot.style.background = hex;
+      bgPreview.style.backgroundImage = 'none';
+      bgPreview.style.backgroundColor = hex;
+      bgHex.textContent = hex;
+      const obj = {type:'color', value:hex};
+      localStorage.setItem(BG_KEY, JSON.stringify(obj));
+      updateSavedBgText();
+      sendBackgroundToServer(obj);
+    }
+
+    const bgSaved = localStorage.getItem(BG_KEY);
+    if(bgSaved){
+      try{
+        const v = JSON.parse(bgSaved);
+        if(v.type === 'image' || v.type === 'url' || v.type === 'upload'){
+          bgPreview.style.backgroundImage = `url(${v.value})`;
+          bgPreview.style.backgroundSize = 'cover';
+          bgPreview.style.backgroundPosition = 'center';
+        } else {
+          bgPreview.style.backgroundImage = 'none';
+          bgPreview.style.backgroundColor = v.value;
+          colorPicker.value = v.value;
+          hexInput.value = v.value;
+          colorDot.style.background = v.value;
+          bgHex.textContent = v.value;
+        }
+      } catch(e){
+        console.warn('invalid bg saved');
+      }
+    } else { setColor('#282c34'); }
+
+    function updateSavedBgText(){
+      const raw = localStorage.getItem(BG_KEY);
+      if(!raw){ savedBg.textContent = 'None'; return; }
+      try{ const v = JSON.parse(raw); savedBg.textContent = v.type + ' — ' + (typeof v.value === 'string' && v.value.length>40? v.value.slice(0,40)+'...': v.value); }catch(e){ savedBg.textContent = 'None' }
+    }
+    updateSavedBgText();
+
+    colorPicker.addEventListener('input', (e)=> setColor(e.target.value));
+    hexInput.addEventListener('change', (e)=>{ const v = e.target.value.trim(); if(/^#([0-9A-Fa-f]{3}){1,2}$/.test(v)) setColor(v); else alert('Please enter a valid hex, e.g. #282c34'); });
+    applyColorBtn.addEventListener('click', ()=>{ const h = hexInput.value.trim(); if(/^#([0-9A-Fa-f]{3}){1,2}$/.test(h)){ setColor(h); console.log('Applied color selection:', h); } else alert('Invalid hex'); });
+
+    uploadFile.addEventListener('change', async (e)=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = async ()=>{
+        const dataUrl = reader.result;
+        const obj = {type:'upload', name:file.name, value:dataUrl};
+        localStorage.setItem(BG_KEY, JSON.stringify(obj));
+        bgPreview.style.backgroundImage = `url(${dataUrl})`;
+        bgPreview.style.backgroundSize = 'cover';
+        bgPreview.style.backgroundPosition = 'center';
+        updateSavedBgText();
+        await sendBackgroundToServer({type:'upload', value:dataUrl});
+      };
+      reader.readAsDataURL(file);
+    });
+
+    useUrlBtn.addEventListener('click', async ()=>{
+      const url = urlInput.value.trim();
+      if(!url) return alert('Enter a valid link');
+      if(!/^https?:\/\//i.test(url)) return alert('URL must start with http:// or https://');
+      const obj = {type:'url', value:url};
+      localStorage.setItem(BG_KEY, JSON.stringify(obj));
+      bgPreview.style.backgroundImage = `url(${url})`;
+      bgPreview.style.backgroundSize = 'cover';
+      bgPreview.style.backgroundPosition = 'center';
+      updateSavedBgText();
+      await sendBackgroundToServer(obj);
+    });
+
+    const initDensity = localStorage.getItem(DENSITY_KEY) || 'comfortable';
+    function applyDensity(d){ if(d === 'compact') body.classList.add('compact'); else body.classList.remove('compact'); document.getElementById('densitySelect').value = d; }
+    applyDensity(initDensity);
+    document.getElementById('densitySelect').addEventListener('change',(e)=>{ localStorage.setItem(DENSITY_KEY,e.target.value); applyDensity(e.target.value); });
+
+    const initAnim = localStorage.getItem(ANIM_KEY);
+    const animationsToggleEl = document.getElementById('animationsToggle');
+    animationsToggleEl.checked = initAnim === null ? true : initAnim === 'true';
+    function applyAnimations(enabled){ if(!enabled) body.classList.add('no-animations'); else body.classList.remove('no-animations'); }
+    applyAnimations(animationsToggleEl.checked);
+    animationsToggleEl.addEventListener('change',(e)=>{ localStorage.setItem(ANIM_KEY,e.target.checked); applyAnimations(e.target.checked); });
+
+    const savedAccent = localStorage.getItem(ACCENT_KEY);
+    if(savedAccent) document.documentElement.style.setProperty('--accent', savedAccent);
+    accentPicker.addEventListener('input',(e)=>{ document.documentElement.style.setProperty('--accent', e.target.value); localStorage.setItem(ACCENT_KEY,e.target.value); });
+
+    changePassCard.addEventListener('click', ()=>{ modalOverlay.classList.add('show'); changeModal.classList.add('show'); });
+    modalCancel.addEventListener('click', ()=>{ modalOverlay.classList.remove('show'); changeModal.classList.remove('show'); });
+    modalOverlay.addEventListener('click', (e)=>{ if(e.target === modalOverlay){ modalOverlay.classList.remove('show'); changeModal.classList.remove('show'); } });
+
+    modalSave.addEventListener('click', async ()=>{
+      const cur = document.getElementById('modalCurrent').value;
+      const nw = document.getElementById('modalNew').value;
+      const cf = document.getElementById('modalConfirm').value;
+      if(!cur || !nw || !cf) return alert('Fill all fields');
+      if(nw.length < 8) return alert('New password must be at least 8 characters');
+      if(nw !== cf) return alert('Passwords do not match');
+
+      try {
+        const res = await fetch('/api/settings/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ current: cur, newPassword: nw, confirm: cf })
+        });
+
+        const data = await res.json().catch(()=>({ error: 'Invalid server response' }));
+
+        if(!res.ok) {
+          alert(data.error || 'Failed to change password');
+          return;
+        }
+
+        alert('Password changed successfully');
+        document.getElementById('modalCurrent').value = '';
+        document.getElementById('modalNew').value = '';
+        document.getElementById('modalConfirm').value = '';
+        modalOverlay.classList.remove('show'); changeModal.classList.remove('show');
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+        alert('Succesfully');
+      }
+    });
+
+    async function loadServers(){
+      serversListEl.innerHTML = `<div style="padding:12px;color:var(--muted)">Loading…</div>`;
+      try {
+        const res = await fetch('/api/settings/servers');
+        if (!res.ok) {
+          const err = await res.json().catch(()=>({error:'failed'}));
+          serversListEl.innerHTML = `<div style="padding:12px;color:var(--muted)">Failed to load servers</div>`;
+          console.warn(err);
+          return;
+        }
+        const data = await res.json();
+        renderServers(data.names || []);
+      } catch (e) {
+        console.error(e);
+        serversListEl.innerHTML = `<div style="padding:12px;color:var(--muted)">Network error</div>`;
+      }
+    }
+
+    function renderServers(list){
+      if(!Array.isArray(list) || list.length === 0){
+        serversListEl.innerHTML = `<div style="padding:12px;color:var(--muted)">No servers found.</div>`;
+        return;
+      }
+      serversListEl.innerHTML = '';
+      list.forEach(name=>{
+        const row = document.createElement('div');
+        row.className = 'server-row clickable-card';
+        row.dataset.name = name;
+        row.innerHTML = `
+          <div class="left">
+            <div class="iconWrap"><i class="fa-solid fa-folder"></i></div>
+            <div class="name">${escapeHtml(name)}</div>
+          </div>
+          <div class="actions">
+            <button class="btn ghost delete-server" data-name="${encodeURIComponent(name)}" title="Delete ${escapeHtml(name)}"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        `;
+        serversListEl.appendChild(row);
+      });
+    }
+
+    const serverSearchInput = document.getElementById('serverSearch');
+    serverSearchInput.addEventListener('input', () => {
+      const q = serverSearchInput.value.trim().toLowerCase();
+      const rows = serversListEl.querySelectorAll('.server-row');
+      rows.forEach(row => {
+        const name = (row.dataset.name || '').toLowerCase();
+        row.style.display = (!q || name.includes(q)) ? '' : 'none';
+      });
+    });
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
+    }
+
+    serversListEl.addEventListener('click', async (e)=>{
+      const btn = e.target.closest('.delete-server');
+      if(!btn) return;
+      const encName = btn.dataset.name;
+      if(!encName) return;
+      const name = decodeURIComponent(encName);
+      const ok = confirm(`Delete server "${name}"? This will permanently remove the folder and its contents.`);
+      if(!ok) return;
+      try {
+        btn.disabled = true;
+        const res = await fetch(`/api/settings/servers/${encodeURIComponent(name)}`, { method: 'DELETE' });
+        const data = await res.json().catch(()=>({ error: 'Invalid response' }));
+        if(!res.ok){
+          alert(data.error || 'Failed to delete server');
+          btn.disabled = false;
+          return;
+        }
+        const row = btn.closest('.server-row');
+        if(row) row.remove();
+      } catch (err) {
+        console.error(err);
+        alert('Network error while deleting server');
+        btn.disabled = false;
+      }
+    });
+
+    async function loadAccounts(){
+      accountsListEl.innerHTML = `<div style="padding:12px;color:var(--muted)">Loading accounts…</div>`;
+      try {
+        const res = await fetch('/api/settings/accounts');
+        if (!res.ok) {
+          const err = await res.json().catch(()=>({error:'failed'}));
+          accountsListEl.innerHTML = `<div style="padding:12px;color:var(--muted)">Failed to load accounts</div>`;
+          console.warn(err);
+          return;
+        }
+        const data = await res.json();
+        renderAccounts((data.accounts || []), (data.bots || []));
+      } catch (e) {
+        console.error(e);
+        accountsListEl.innerHTML = `<div style="padding:12px;color:var(--muted)">Network error</div>`;
+      }
+    }
+
+    function renderAccounts(accounts, bots){
+      accountsListEl.innerHTML = '';
+      if(!Array.isArray(accounts) || accounts.length === 0){
+        accountsListEl.innerHTML = `<div style="padding:12px;color:var(--muted)">No accounts found in <code>user-access.json</code>.</div>`;
+        return;
+      }
+      accounts.forEach(acc=>{
+        const div = document.createElement('div');
+        div.className = 'account-row';
+        const accessLabel = (Array.isArray(acc.servers) && acc.servers.length>0) ? `${acc.servers.length} access` : 'no access';
+        div.innerHTML = `
+          <div class="account-left">
+            <div class="iconWrap" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04)"><i class="fa-solid fa-user"></i></div>
+            <div>
+              <div class="account-email">${escapeHtml(acc.email)}</div>
+              <div style="color:var(--muted);font-size:13px">${escapeHtml(accessLabel)}</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn ghost manage-access" data-email="${encodeURIComponent(acc.email)}" title="Manage access for ${escapeHtml(acc.email)}"><i class="fa-solid fa-server"></i></button>
+          </div>
+        `;
+        accountsListEl.appendChild(div);
+      });
+      accountsListEl._bots = bots || [];
+    }
+
+    accountsListEl.addEventListener('click', (e)=>{
+      const btn = e.target.closest('.manage-access');
+      if(!btn) return;
+      const enc = btn.dataset.email;
+      if(!enc) return;
+      const email = decodeURIComponent(enc);
+      openManageAccessModal(email);
+    });
+
+    async function openManageAccessModal(email){
+      accountModalTitle.textContent = `Manage access for ${email}`;
+      accountModalBody.innerHTML = `<div style="padding:12px;color:var(--muted)">Loading…</div>`;
+      accountModalOverlay.classList.add('show');
+      accountModal.classList.add('show');
+
+      try {
+        const res = await fetch('/api/settings/accounts');
+        if(!res.ok) {
+          const err = await res.json().catch(()=>({error:'failed'}));
+          accountModalBody.innerHTML = `<div style="padding:12px;color:var(--muted)">Failed to load data</div>`;
+          console.warn(err);
+          return;
+        }
+        const data = await res.json();
+        const accounts = data.accounts || [];
+        const bots = data.bots || [];
+        const rec = accounts.find(a => String(a.email).toLowerCase() === String(email).toLowerCase());
+        const userServers = rec ? (Array.isArray(rec.servers) ? rec.servers : []) : [];
+
+        if(!Array.isArray(bots) || bots.length === 0){
+          accountModalBody.innerHTML = `<div style="padding:12px;color:var(--muted)">No server folders found.</div>`;
+          return;
+        }
+
+        const list = document.createElement('div');
+        list.style.display = 'grid';
+        list.style.gap = '8px';
+
+        bots.forEach(b=>{
+          const row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.justifyContent = 'space-between';
+          row.style.alignItems = 'center';
+          row.style.padding = '8px';
+          row.style.borderRadius = '8px';
+          row.style.background = 'var(--card-contrast-bg)';
+          row.style.border = '1px solid rgba(15,23,42,0.04)';
+
+          const left = document.createElement('div');
+          left.style.display = 'flex';
+          left.style.gap = '8px';
+          left.style.alignItems = 'center';
+          left.innerHTML = `<div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04)"><i class="fa-solid fa-folder"></i></div><div><div style="font-weight:700">${escapeHtml(b)}</div></div>`;
+
+          const hasAccess = userServers.includes(b) || userServers.includes('all');
+          const actionBtn = document.createElement('button');
+          actionBtn.className = 'btn';
+          actionBtn.style.minWidth = '100px';
+          actionBtn.textContent = hasAccess ? 'Revoke' : 'Add';
+          actionBtn.dataset.server = b;
+          actionBtn.dataset.email = email;
+          actionBtn.addEventListener('click', async (evt) => {
+            actionBtn.disabled = true;
+            try {
+              if(hasAccess) {
+                const r = await fetch(`/api/settings/accounts/${encodeURIComponent(email)}/remove`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ server: b })
+                });
+                if (!r.ok) {
+                  const err = await r.json().catch(()=>({ error: 'failed' }));
+                  alert(err.error || 'Failed to revoke access');
+                } else {
+                  actionBtn.textContent = 'Add';
+                  hasAccess = false;
+                  setTimeout(()=> openManageAccessModal(email), 300);
+                }
+              } else {
+                const r = await fetch(`/api/settings/accounts/${encodeURIComponent(email)}/add`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ server: b })
+                });
+                if (!r.ok) {
+                  const err = await r.json().catch(()=>({ error: 'failed' }));
+                  alert(err.error || 'Failed to add access');
+                } else {
+                  actionBtn.textContent = 'Revoke';
+                  hasAccess = true;
+                  setTimeout(()=> openManageAccessModal(email), 300);
+                }
+              }
+            } catch (err) {
+              console.error(err);
+              alert('Network error');
+            } finally {
+              actionBtn.disabled = false;
+            }
+          });
+
+          row.appendChild(left);
+          row.appendChild(actionBtn);
+          list.appendChild(row);
+        });
+
+        accountModalBody.innerHTML = '';
+        accountModalBody.appendChild(list);
+
+      } catch (e) {
+        console.error(e);
+        accountModalBody.innerHTML = `<div style="padding:12px;color:var(--muted)">Successfully!</div>`;
+      }
+    }
+
+    accountModalClose.addEventListener('click', ()=>{
+      accountModalOverlay.classList.remove('show');
+      accountModal.classList.remove('show');
+    });
+
+    accountModalOverlay.addEventListener('click', (e)=>{
+      if(e.target === accountModalOverlay) {
+        accountModalOverlay.classList.remove('show');
+        accountModal.classList.remove('show');
+      }
+    });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const WAIT_INTERVAL = 100;
+  const WAIT_TIMEOUT = 3000;
+  const sidebarSelector = '#sidebarNav';
+
+  const pathnameDefaults = [
+    { match: /^\/servers(?:\/|$)/i, panel: 'servers' },
+    { match: /^\/settings(?:\/|$)/i, panel: 'preferences' }
+  ];
+
+  function getRequestedPanel() {
+    const params = new URLSearchParams(location.search);
+    const p = params.get('panel');
+    if (p) return p;
+
+    if (location.hash && location.hash.length > 1) return location.hash.slice(1);
+
+    const path = location.pathname || '/';
+    for (const r of pathnameDefaults) {
+      if (r.match.test(path)) return r.panel;
+    }
+
+    return null;
+  }
+
+  function tryOpenPanel(panel) {
+    if (!panel) return false;
+    const btn = document.querySelector(`${sidebarSelector} button[data-panel="${panel}"]`);
+    if (btn) {
+      try {
+        btn.focus?.();
+        btn.click();
+      } catch (e) {
+        const ev = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+        btn.dispatchEvent(ev);
+      }
+      console.log(`[openPanel] opened panel: ${panel}`);
+      return true;
+    }
+    return false;
+  }
+
+  async function waitForSidebarAndOpen() {
+    const panel = getRequestedPanel();
+    if (!panel) {
+      console.log('[openPanel] no panel requested in URL and no pathname default');
+      return;
+    }
+
+    const start = Date.now();
+    if (document.querySelector(sidebarSelector)) {
+      if (tryOpenPanel(panel)) {
+        return;
+      }
+    }
+
+    while (Date.now() - start < WAIT_TIMEOUT) {
+      const side = document.querySelector(sidebarSelector);
+      if (side) {
+        if (tryOpenPanel(panel)) {
+          return;
+        }
+      }
+      // pauză
+      await new Promise(r => setTimeout(r, WAIT_INTERVAL));
+    }
+
+    console.warn(`[openPanel] failed to open panel "${panel}" — button not found after ${WAIT_TIMEOUT}ms`);
+    const directPanelEl = document.getElementById(panel);
+    if (directPanelEl) {
+      document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
+      directPanelEl.classList.add('active');
+      console.log(`[openPanel] opened panel by id: ${panel}`);
+    } else {
+      console.log('[openPanel] no fallback panel element with that id found either');
+    }
+  }
+
+  waitForSidebarAndOpen();
+});
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "main": "index.js",
+  "name": "hey",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "version": "1.0.0"
+}
