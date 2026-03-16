@@ -1,6 +1,0 @@
-{
-  "name": "hey",
-  "port": 3009,
-  "runtime": "nodejs",
-  "runtime_version": "v24.14.0"
-}
