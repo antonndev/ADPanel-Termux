@@ -94,9 +94,5 @@ bash initialize.sh
 - **Frontend**: HTML + Tailwind CSS + HTMX
 - **Real-time Console**: WebSocket (native axum)
 - **Auth**: bcrypt + TOTP 2FA
-- **TLS**: rustls (no OpenSSL dependency at runtime)
-
- # **⚠️ DO NOT RUN ON PUBLIC NETWORK! ⚠️**
-   We do NOT recommend running this mobile panel on a public network, only on localhost or internal interfaces.<br>
-   <br>
-**WHY?**: Because it is lightweight, our developers didn't implement some security principles, so it isn't completely secure. It is designed to run Discord bots and consume minimal resources; complex security implementations could make it hard to run on low-end phones.
+- **TLS**: rustls (no OpenSSL dependency at runtime
+ 
